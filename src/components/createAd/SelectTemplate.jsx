@@ -35,7 +35,7 @@ const SelectTemplate = () => {
 
   useEffect(() => {
     if (templates.length === 0) dispatch(getAllTemplates());
-  }, []);
+  }, [dispatch, templates]);
 
   const handleTemplateSelect = (i) => {
     dispatch(selectTemplateAction(templates[i].name));

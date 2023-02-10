@@ -41,7 +41,14 @@ const SelectTemplate = () => {
     dispatch(selectTemplateAction(templates[i].name));
   };
 
-  if (isError) return <div>{message}</div>;
+  if (isLoading || isError)
+    return (
+      <Box>
+        <Typography variant="h5">Select Template</Typography>
+        {isError && <Typography>{message}</Typography>}
+        {isLoading && <Typography>Loading</Typography>}
+      </Box>
+    );
 
   return (
     <div>

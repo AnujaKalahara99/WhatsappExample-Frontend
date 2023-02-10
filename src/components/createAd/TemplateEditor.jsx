@@ -49,7 +49,6 @@ const TemplateEditor = () => {
       {header && (
         <div className="container mt-4">
           <h6>Header</h6>
-          {console.log(selectedTemplateVariables.body)}
           {header.format === "TEXT" && (
             <StringVariableReplace
               handle={handleHeaderInput}

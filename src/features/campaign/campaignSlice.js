@@ -38,7 +38,6 @@ const campaignSlice = createSlice({
     },
     selectCampaign: (state, action) => {
       state.selectedCampaign = action.payload;
-      console.log(action.payload);
     },
   },
   extraReducers: (builder) => {

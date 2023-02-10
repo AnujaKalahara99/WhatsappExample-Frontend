@@ -21,7 +21,7 @@ function SendPage() {
 
   return (
     <div className="container">
-      <div style={{ display: "inline-flex", alignSelf: "center" }}>
+      <div style={{ display: "flex", alignSelf: "center" }}>
         <div style={{ alignSelf: "center" }}>
           <Typography variant="h5">Campaign</Typography>
         </div>

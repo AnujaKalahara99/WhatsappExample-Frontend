@@ -1,17 +1,21 @@
 import {
+  Box,
   Grid,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Card,
-  CardHeader,
   Checkbox,
   Button,
   Divider,
+  Typography,
+  Paper,
+  Table,
+  TableContainer,
+  TableBody,
+  TableHead,
+  TableCell,
+  TableRow,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   addToSelected,
@@ -21,53 +25,47 @@ import {
   filterByTags,
 } from "../../features/contacts/contactSlice";
 
-function not(a, b) {
-  return a.filter((value) => b.indexOf(value) === -1);
-}
-
-function intersection(a, b) {
-  return a.filter((value) => b.indexOf(value) !== -1);
-}
-
-function union(a, b) {
-  return [...a, ...not(b, a)];
-}
-
 const SelectContacts = () => {
   const dispatch = useDispatch();
 
-  // const [selected, setLeft] = useState([0, 1, 2, 3]);
-  // const [notSelected, setRight] = useState([4, 5, 6, 7]);
   const {
-    filteredSelectedContacts: selected,
-    filteredNonSelectedContacts: notSelected,
+    filteredSelectedContacts: filteredSelected,
+    filteredNonSelectedContacts: filteredNotSelected,
+    selectedContacts: selected,
+    nonSelectedContacts: notSelected,
     allFilterTags,
     isError,
     isLoading,
     message,
   } = useSelector((state) => state.contacts);
 
-  // const selected = [];
-  // const notSelected = [];
+  const campaign = useSelector((state) => state.campaigns.selectedCampaign);
 
   useEffect(() => {
-    dispatch(filterByCampaignID(2));
+    if (campaign) dispatch(filterByCampaignID(campaign.id));
     dispatch(getAllTags());
-  }, [dispatch]);
+  }, [dispatch, campaign]);
 
   const [checked, setChecked] = useState([]);
-  // const selected = filteredSelectedContacts.map((con) => con.wtsp);
-  // const notSelected = filteredNonSelectedContacts.map((con) => con.wtsp);
+  const [leftFilterTags, setLeftFilterTags] = useState([]);
+  const [rightFilterTags, setRightFilterTags] = useState([]);
 
-  //const selected = useSelector(
-  //  (state) => state.contacs.filteredSelectedContacts
-  //);
-  // const notSelected = useSelector(
-  //   (state) => state.contacs.filteredNonSelectedContacts
-  // );
+  const leftChecked = intersection(checked, filteredSelected);
+  const rightChecked = intersection(checked, filteredNotSelected);
+  const selectedContactsName = "Selected Contacts";
+  const notSelectedContactsName = "Not Selected Contacts";
 
-  const leftChecked = intersection(checked, selected);
-  const rightChecked = intersection(checked, notSelected);
+  function not(a, b) {
+    return a.filter((value) => b.indexOf(value) === -1);
+  }
+
+  function intersection(a, b) {
+    return a.filter((value) => b.indexOf(value) !== -1);
+  }
+
+  function union(a, b) {
+    return [...a, ...not(b, a)];
+  }
 
   const handleToggle = (value) => () => {
     const currentIndex = checked.indexOf(value);
@@ -93,113 +91,181 @@ const SelectContacts = () => {
   };
 
   const handleCheckedRight = () => {
-    // setRight(notSelected.concat(leftChecked));
-    // setLeft(not(selected, leftChecked));
     dispatch(removeFromSelected(leftChecked));
     setChecked(not(checked, leftChecked));
   };
 
   const handleCheckedLeft = () => {
-    // setLeft(selected.concat(rightChecked));
-    // setRight(not(notSelected, rightChecked));
     dispatch(addToSelected(rightChecked));
     setChecked(not(checked, rightChecked));
   };
 
-  const customList = (title, items) => (
-    <Card>
-      <CardHeader
-        sx={{ px: 1, py: 1 }}
-        avatar={
-          <Checkbox
-            onClick={handleToggleAll(items)}
-            checked={
-              numberOfChecked(items) === items.length && items.length !== 0
+  const handleFilter = (tags, name) => {
+    if (name === selectedContactsName) {
+      setLeftFilterTags(tags);
+      dispatch(
+        filterByTags({
+          tags: tags.map((tag) => tag.label),
+          list: selected,
+          isFilteringSelected: true,
+        })
+      );
+    } else {
+      setRightFilterTags(tags);
+      dispatch(
+        filterByTags({
+          tags: tags.map((tag) => tag.label),
+          list: notSelected,
+          isFilteringSelected: false,
+        })
+      );
+    }
+  };
+
+  function filterTable(title, items) {
+    return (
+      <Box key={title}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant="body2">{`${numberOfChecked(items)}/${
+            title === selectedContactsName
+              ? selected.length
+              : notSelected.length
+          }`}</Typography>
+          <Typography variant="body2">{title}</Typography>
+          <Autocomplete
+            sx={{ maxWidth: "70%", minWidth: "100px" }}
+            multiple
+            disablePortal
+            id={`filterTags ${title}`}
+            options={allFilterTags}
+            filterSelectedOptions
+            onChange={(e, value) => handleFilter(value, title)}
+            value={
+              title === selectedContactsName ? leftFilterTags : rightFilterTags
             }
-            indeterminate={
-              numberOfChecked(items) !== items.length &&
-              numberOfChecked(items) !== 0
-            }
-            disabled={items.length === 0}
-            inputProps={{
-              "aria-label": "all items selected",
-            }}
+            renderInput={(params) => (
+              <TextField {...params} label="Filter Tags" variant="standard" />
+            )}
           />
-        }
-        title={title}
-        subheader={`${numberOfChecked(items)}/${items.length} selected`}
-      />
-      <Divider />
-      <List
-        sx={{
-          width: 200,
-          height: 230,
-          bgcolor: "background.paper",
-          overflow: "auto",
-        }}
-        dense
-        component="div"
-        role="list"
-      >
-        {items.map((value) => {
-          const labelId = `transfer-list-all-item-${value}-label`;
+        </Box>
+        <Divider />
+        <TableContainer component={Paper}>
+          <Table
+            sx={{ minWidth: "500px" }}
+            size="small"
+            aria-label="a dense table"
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    onClick={handleToggleAll(items)}
+                    checked={
+                      numberOfChecked(items) === items.length &&
+                      items.length !== 0
+                    }
+                    indeterminate={
+                      numberOfChecked(items) !== items.length &&
+                      numberOfChecked(items) !== 0
+                    }
+                    disabled={items.length === 0}
+                    inputProps={{
+                      "aria-label": "all items selected",
+                    }}
+                  />
+                </TableCell>
+                <TableCell className="fw-bold">Number</TableCell>
+                <TableCell className="fw-bold" align="right">
+                  Tags
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {items.map((value) => {
+                const labelId = `transfer-list-all-item-${value.wtsp}-label`;
+                return (
+                  <TableRow
+                    hover
+                    onClick={handleToggle(value)}
+                    role="checkbox"
+                    aria-checked={checked.indexOf(value) !== -1}
+                    tabIndex={-1}
+                    key={value.wtsp}
+                    selected={checked.indexOf(value) !== -1}
+                  >
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        onClick={handleToggle(value)}
+                        checked={checked.indexOf(value) !== -1}
+                        color="primary"
+                        inputProps={{
+                          "aria-labelledby": labelId,
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell component="th" scope="row">
+                      {value.wtsp}
+                    </TableCell>
+                    <TableCell align="right">{value.tags}</TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    );
+  }
 
-          return (
-            <ListItem
-              key={value}
-              role="listitem"
-              button
-              onClick={handleToggle(value)}
-            >
-              <ListItemIcon>
-                <Checkbox
-                  checked={checked.indexOf(value) !== -1}
-                  tabIndex={-1}
-                  disableRipple
-                  inputProps={{
-                    "aria-labelledby": labelId,
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText id={labelId} primary={value} />
-            </ListItem>
-          );
-        })}
-      </List>
-    </Card>
-  );
-
-  if (isLoading) return <div>loading</div>;
+  if (isLoading || isError)
+    return (
+      <Box>
+        <Typography variant="h5">Select Contacts</Typography>
+        {isError && <Typography>{message}</Typography>}
+        {isLoading && <Typography>Loading</Typography>}
+      </Box>
+    );
 
   return (
-    <Grid container spacing={1} justifyContent="center" alignItems="center">
-      <Grid item>{customList("Choices", selected)}</Grid>
-      <Grid item>
-        <Grid container direction="column" alignItems="center">
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedRight}
-            disabled={leftChecked.length === 0}
-            aria-label="move selected right"
-          >
-            &gt;
-          </Button>
-          <Button
-            sx={{ my: 0.5 }}
-            variant="outlined"
-            size="small"
-            onClick={handleCheckedLeft}
-            disabled={rightChecked.length === 0}
-            aria-label="move selected left"
-          >
-            &lt;
-          </Button>
+    <Box>
+      <Typography variant="h5">Select Contacts</Typography>
+      <Grid container spacing={1} justifyContent="center" alignItems="center">
+        <Grid item>{filterTable(selectedContactsName, filteredSelected)}</Grid>
+        <Grid item>
+          <Grid container direction="row" alignItems="center">
+            <Button
+              sx={{ my: 0.5 }}
+              variant="outlined"
+              size="small"
+              onClick={handleCheckedLeft}
+              disabled={rightChecked.length === 0}
+              aria-label="move selected left"
+            >
+              &lt;
+            </Button>
+            <Button
+              sx={{ my: 0.5 }}
+              variant="outlined"
+              size="small"
+              onClick={handleCheckedRight}
+              disabled={leftChecked.length === 0}
+              aria-label="move selected right"
+            >
+              &gt;
+            </Button>
+          </Grid>
+        </Grid>
+        <Grid item>
+          {filterTable(notSelectedContactsName, filteredNotSelected)}
         </Grid>
       </Grid>
-      <Grid item>{customList("Chosen", notSelected)}</Grid>
-    </Grid>
+    </Box>
   );
 };
 

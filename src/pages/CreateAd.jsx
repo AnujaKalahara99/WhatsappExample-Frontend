@@ -4,6 +4,7 @@ import Masonry from "react-masonry-css";
 import SelectCampaign from "../components/createAd/SelectCampaign";
 import SelectContacts from "../components/createAd/SelectContacts";
 import SelectTemplate from "../components/createAd/SelectTemplate";
+import SendAndError from "../components/createAd/SendAndError";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -31,6 +32,7 @@ const CreateAd = () => {
           <SelectContacts />
         </Item>
       </Masonry>
+      <SendAndError />
     </Box>
   );
 };

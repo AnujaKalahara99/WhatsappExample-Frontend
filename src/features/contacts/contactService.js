@@ -2,7 +2,7 @@ export const contacts = [
   {
     id: 0,
     userID: 3,
-    campaignIDs: [2],
+    campaignIDs: [1, 2],
     name: "Anuja",
     wtsp: "94763891917",
     sms: "94763891917",
@@ -12,7 +12,7 @@ export const contacts = [
   {
     id: 1,
     userID: 3,
-    campaignIDs: [2],
+    campaignIDs: [1, 2],
     name: "Induwara",
     wtsp: "94768608824",
     tags: ["Male", "Apple", "Orange"],
@@ -73,8 +73,9 @@ const selectContacts = async (userId, campaignId) => {
   const selected = [];
   const nonSelected = [];
   all.forEach((contact) => {
-    if (contact.campaignIDs.includes(campaignId)) selected.push(contact.wtsp);
-    else nonSelected.push(contact.wtsp);
+    if (contact.campaignIDs.includes(campaignId))
+      selected.push({ wtsp: contact.wtsp, tags: contact.tags });
+    else nonSelected.push({ wtsp: contact.wtsp, tags: contact.tags });
   });
   return {
     selected,
@@ -82,17 +83,32 @@ const selectContacts = async (userId, campaignId) => {
   };
 };
 
-const selectContactsByTags = async (contactList, filterTags) => {
-  // const selected = [];
-  // const nonSelected = [];
-  // contactList.forEach((contact) => {
-  //   if (contact.tags.includes(filterTags)) selected.push(contact.wtsp);
-  //   else nonSelected.push(contact.wtsp);
-  // });
-  // return {
-  //   selected,
-  //   nonSelected,
-  // };
+const selectContactsByTags = async (
+  filterTags,
+  contactList,
+  isFilteringSelected
+) => {
+  let filtered = [];
+  if (filterTags && filterTags.length !== 0) {
+    contactList.forEach((contact) => {
+      let found = true;
+      filterTags.forEach((tag) => {
+        if (contact.tags.indexOf(tag) === -1) {
+          found = false;
+          return;
+        }
+      });
+      if (found) {
+        filtered.push(contact);
+      }
+    });
+  } else {
+    filtered = contactList;
+  }
+  return {
+    filtered,
+    isFilteringSelected,
+  };
 };
 
 const getAllTags = async (userId) => {
@@ -100,20 +116,32 @@ const getAllTags = async (userId) => {
 };
 
 //not user specific
-const addToSelected = async (add, selected, nonSelected) => {
-  console.log(`add ${add} selected ${selected} nonSelected ${nonSelected}`);
+const addToSelected = async (
+  add,
+  selected,
+  nonSelected,
+  filteredS,
+  filteredNS
+) => {
   return {
+    filteredSelected: union(filteredS, add),
     selected: union(selected, add),
+    filteredNonSelected: not(filteredNS, add),
     nonSelected: not(nonSelected, add),
   };
 };
 
-const removeFromSelected = async (remove, selected, nonSelected) => {
-  console.log(
-    `remove ${remove} selected ${selected} nonSelected ${nonSelected}`
-  );
+const removeFromSelected = async (
+  remove,
+  selected,
+  nonSelected,
+  filteredS,
+  filteredNS
+) => {
   return {
+    filteredSelected: not(filteredS, remove),
     selected: not(selected, remove),
+    filteredNonSelected: union(filteredNS, remove),
     nonSelected: union(nonSelected, remove),
   };
 };

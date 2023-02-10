@@ -23,9 +23,16 @@ export const filterByCampaignID = createAsyncThunk(
 
 export const filterByTags = createAsyncThunk(
   "contacts/filterByTags",
-  async (filterTags, contactList, thunkAPI) => {
+  async (data, thunkAPI) => {
+    const isFilteringSelected = data.isFilteringSelected
+      ? data.isFilteringSelected
+      : false;
     try {
-      return await contactService.selectContactsByTags(contactList, filterTags);
+      return await contactService.selectContactsByTags(
+        data.tags,
+        data.list,
+        isFilteringSelected
+      );
     } catch (error) {
       const message =
         (error.response &&
@@ -62,6 +69,8 @@ export const addToSelected = createAsyncThunk(
     try {
       return await contactService.addToSelected(
         add,
+        thunkAPI.getState().contacts.selectedContacts,
+        thunkAPI.getState().contacts.nonSelectedContacts,
         thunkAPI.getState().contacts.filteredSelectedContacts,
         thunkAPI.getState().contacts.filteredNonSelectedContacts
       );
@@ -82,6 +91,8 @@ export const removeFromSelected = createAsyncThunk(
     try {
       return await contactService.removeFromSelected(
         remove,
+        thunkAPI.getState().contacts.selectedContacts,
+        thunkAPI.getState().contacts.nonSelectedContacts,
         thunkAPI.getState().contacts.filteredSelectedContacts,
         thunkAPI.getState().contacts.filteredNonSelectedContacts
       );
@@ -116,25 +127,6 @@ const contactSlice = createSlice({
     reset: (state) => {
       state = initialState;
     },
-    // addToSelected: (state, action) => {
-    //   state.selectedContacts.push(action.payload);
-    //   const removeIndexes = action.payload.map((item) =>
-    //     state.nonSelectedContacts.findIndex(item)
-    //   );
-    //   state.nonSelectedContacts = state.nonSelectedContacts.filter(
-    //     (contact, index) => !removeIndexes.includes(index)
-    //   );
-    // },
-    // removeFromSelected: (state, action) => {
-    //   state.nonSelectedContacts.push(action.payload);
-    //   console.log(action.payload);
-    //   const removeIndexes = action.payload.map((item) =>
-    //     state.selectedContacts.findIndex((con) => con.wtsp === item)
-    //   );
-    //   state.selectedContacts = state.selectedContacts.filter(
-    //     (contact, index) => !removeIndexes.includes(index)
-    //   );
-    // },
   },
   extraReducers: (builder) => {
     builder
@@ -164,8 +156,9 @@ const contactSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.filteredSelectedContacts = action.payload.selected;
-        state.filteredNonSelectedContacts = action.payload.nonSelected;
+        if (action.payload.isFilteringSelected)
+          state.filteredSelectedContacts = action.payload.filtered;
+        else state.filteredNonSelectedContacts = action.payload.filtered;
       })
       .addCase(filterByTags.rejected, (state, action) => {
         state.isLoading = false;
@@ -198,8 +191,8 @@ const contactSlice = createSlice({
         state.isError = false;
         state.selectedContacts = action.payload.selected;
         state.nonSelectedContacts = action.payload.nonSelected;
-        state.filteredSelectedContacts = action.payload.selected;
-        state.filteredNonSelectedContacts = action.payload.nonSelected;
+        state.filteredSelectedContacts = action.payload.filteredSelected;
+        state.filteredNonSelectedContacts = action.payload.filteredNonSelected;
       })
       .addCase(addToSelected.rejected, (state, action) => {
         state.isLoading = false;
@@ -215,8 +208,8 @@ const contactSlice = createSlice({
         state.isError = false;
         state.selectedContacts = action.payload.selected;
         state.nonSelectedContacts = action.payload.nonSelected;
-        state.filteredSelectedContacts = action.payload.selected;
-        state.filteredNonSelectedContacts = action.payload.nonSelected;
+        state.filteredSelectedContacts = action.payload.filteredSelected;
+        state.filteredNonSelectedContacts = action.payload.filteredNonSelected;
       })
       .addCase(removeFromSelected.rejected, (state, action) => {
         state.isLoading = false;

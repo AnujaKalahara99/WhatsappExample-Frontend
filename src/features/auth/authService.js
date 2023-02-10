@@ -20,5 +20,9 @@ const loginAPI = async (userData) => {
   return response.data;
 };
 
-const authService = { registerAPI, loginAPI };
+const logoutAPI = () => {
+  localStorage.removeItem("user");
+};
+
+const authService = { registerAPI, loginAPI, logoutAPI };
 export default authService;

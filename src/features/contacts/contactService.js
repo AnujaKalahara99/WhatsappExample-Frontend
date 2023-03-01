@@ -35,7 +35,7 @@ const selectContacts = async (token, filters) => {
     },
   };
 
-  const response = await axios.get(`${local}/api/contacts/`, config);
+  const response = await axios.get(`${cloud}/api/contacts/`, config);
   return response.data;
 };
 
@@ -114,7 +114,7 @@ const getRecentMessageFromAll = async (token) => {
   };
 
   const response = await axios.get(
-    `${local}/api/contacts/recentMessages`,
+    `${cloud}/api/contacts/recentMessages`,
     config
   );
   return response.data;

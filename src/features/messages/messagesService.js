@@ -149,7 +149,7 @@ const markContactRead = async (token, contact) => {
   };
 
   const response = await axios.post(
-    `${local}/api/wtsp/messages/read`,
+    `${cloud}/api/wtsp/messages/read`,
     { contact },
     config
   );

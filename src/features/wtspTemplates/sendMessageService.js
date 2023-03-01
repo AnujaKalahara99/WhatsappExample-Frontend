@@ -13,7 +13,7 @@ const send = async (messageData, token) => {
   };
 
   const response = await axios.post(
-    `${local}/api/wtsp/messages`,
+    `${cloud}/api/wtsp/messages`,
     messageData,
     config
   );

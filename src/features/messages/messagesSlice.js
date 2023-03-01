@@ -25,9 +25,26 @@ export const getContactMessages = createAsyncThunk(
   async (contact, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.token;
-      const userId = thunkAPI.getState().auth.user.id;
       thunkAPI.dispatch(setSelected(contact));
       return await messagesService.getContactMessages(3, token, contact);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+export const markContactRead = createAsyncThunk(
+  "messages/markContactRead",
+  async (contact, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      return await messagesService.markContactRead(token, contact);
     } catch (error) {
       const message =
         (error.response &&
@@ -99,6 +116,25 @@ const messagesSlice = createSlice({
         state.contactLog = action.payload;
       })
       .addCase(getContactMessages.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(markContactRead.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(markContactRead.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.message = "";
+        state.isSuccess = true;
+        state.contactLog = state.contactLog.map((con) => {
+          if (con.wtsp === action.payload.wtsp) return action.payload;
+          else return con;
+        });
+      })
+      .addCase(markContactRead.rejected, (state, action) => {
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;

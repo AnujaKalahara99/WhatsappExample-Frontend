@@ -1,7 +1,6 @@
 export const contacts = [
   {
     id: 0,
-    userId: "3",
     campaignIds: ["1", "2"],
     name: "Anuja",
     wtsp: "94763891917",
@@ -15,7 +14,6 @@ export const contacts = [
   },
   {
     id: 1,
-    userId: "3",
     campaignIds: ["1", "2"],
     name: "Induwara",
     wtsp: "94768608824",
@@ -27,7 +25,6 @@ export const contacts = [
   },
   {
     id: 2,
-    userId: "3",
     campaignIds: ["2"],
     name: "Amma",
     wtsp: "94779151626",
@@ -40,11 +37,10 @@ export const contacts = [
   },
   {
     id: 2,
-    userId: "3",
     campaignIds: ["2"],
     name: "Unknown",
     wtsp: "94771151643",
-    email: "",
+    email: "unknown@gmail.com",
     tags: ["Apple", "Orange"],
     lastMessage: "",
     lastMessageTime: null,

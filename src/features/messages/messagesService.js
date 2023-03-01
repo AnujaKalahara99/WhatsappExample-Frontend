@@ -140,6 +140,23 @@ const getContactMessages = async (userId, token, contact) => {
   return response.data;
 };
 
-const messagesService = { getAll, getContactMessages };
+const markContactRead = async (token, contact) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const response = await axios.post(
+    `${local}/api/wtsp/messages/read`,
+    { contact },
+    config
+  );
+  console.log(response.data);
+  return response.data;
+};
+
+const messagesService = { getAll, getContactMessages, markContactRead };
 
 export default messagesService;

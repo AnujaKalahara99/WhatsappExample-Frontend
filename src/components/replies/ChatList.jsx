@@ -28,7 +28,7 @@ const ChatList = () => {
     <List>
       {recentMessageDetails.map((e, i) => (
         <div key={i}>
-          <ChatCard key={i} recentMessages={e} />
+          <ChatCard key={i} recentMessage={e} />
           <Divider
             key={"divider " + i}
             sx={{ borderBottomWidth: 2, borderBottomColor: "black" }}

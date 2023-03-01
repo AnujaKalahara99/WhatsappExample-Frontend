@@ -11,7 +11,7 @@ const cloud = "https://kind-red-wombat-yoke.cyclic.app";
 const local = "http://localhost:4000";
 const maxLength = 1000; //if exceed the process will be passed to backend
 
-const createContacts = async (token, userId) => {
+const createContacts = async (token) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -19,15 +19,7 @@ const createContacts = async (token, userId) => {
     },
   };
 
-  const contactList = contacts.map((con) => {
-    con.userId = userId;
-    return con;
-  });
-  const response = await axios.post(
-    `${cloud}/api/contacts`,
-    contactList,
-    config
-  );
+  const response = await axios.post(`${cloud}/api/contacts`, contacts, config);
 
   return response.data;
 };
@@ -42,11 +34,8 @@ const selectContacts = async (token, filters) => {
       filters,
     },
   };
-  console.log(`${cloud}/api/contacts/${filters.userId}`);
-  const response = await axios.get(
-    `${cloud}/api/contacts/${filters.userId}`,
-    config
-  );
+
+  const response = await axios.get(`${local}/api/contacts/`, config);
   return response.data;
 };
 
@@ -116,21 +105,19 @@ const removeFromSelected = async (
 };
 
 //For Reply Window
-const getRecentMessageFromAll = (userId) => {
-  const all = contacts.filter(
-    (contact) => contact.userId === userId && contact.lastMessage !== ""
+const getRecentMessageFromAll = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const response = await axios.get(
+    `${local}/api/contacts/recentMessages`,
+    config
   );
-  all.map((contact) => {
-    return {
-      wtsp: contact.wtsp,
-      name: contact.name,
-      lastMessage: contact.lastMessage,
-      lastMessageTime: contact.lastMessageTime,
-      lastConversationTime: contact.lastConversationTime,
-      unreadMessageCount: contact.unreadMessageCount,
-    };
-  });
-  return all;
+  return response.data;
 };
 
 const contactService = {

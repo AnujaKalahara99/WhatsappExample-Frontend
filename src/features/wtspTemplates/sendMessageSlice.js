@@ -92,7 +92,7 @@ const sendMessageSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = JSON.stringify(action.payload);
       });
   },
 });

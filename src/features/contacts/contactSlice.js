@@ -7,8 +7,8 @@ export const createContacts = createAsyncThunk(
   "contacts/createContacts",
   async (contacts, thunkAPI) => {
     try {
-      const user = thunkAPI.getState().auth.user;
-      return await contactService.createContacts(user.token, user.userId);
+      const token = thunkAPI.getState().auth.user.token;
+      return await contactService.createContacts(token);
     } catch (error) {
       const message =
         (error.response &&
@@ -25,9 +25,8 @@ export const filterByCampaignID = createAsyncThunk(
   "contacts/filterByCampaignID",
   async (campaignIds, thunkAPI) => {
     try {
-      const user = thunkAPI.getState().auth.user;
-      return await contactService.selectContacts(user.token, {
-        userId: user.userId,
+      const token = thunkAPI.getState().auth.user.token;
+      return await contactService.selectContacts(token, {
         campaignIds,
       });
     } catch (error) {
@@ -137,8 +136,8 @@ export const getRecentMessageFromAll = createAsyncThunk(
   "contacts/getRecentMessageFromAll",
   async (_, thunkAPI) => {
     try {
-      const userId = "3";
-      return await contactService.getRecentMessageFromAll(userId);
+      const token = thunkAPI.getState().auth.user.token;
+      return await contactService.getRecentMessageFromAll(token);
     } catch (error) {
       const message =
         (error.response &&
@@ -282,7 +281,7 @@ const contactSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.recentMessageDetails = action.payload;
+        state.recentMessageDetails = action.payload.selected;
       })
       .addCase(getRecentMessageFromAll.rejected, (state, action) => {
         state.isLoading = false;

@@ -11,6 +11,7 @@ import {
   Badge,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
+import { markContactRead } from "../../features/messages/messagesSlice";
 import { getContactMessages } from "../../features/messages/messagesSlice";
 
 const ChatCard = (props) => {
@@ -19,7 +20,10 @@ const ChatCard = (props) => {
   return (
     <Box sx={{ padding: 1 }}>
       <CardActionArea
-        onClick={() => dispatch(getContactMessages(props.recentMessages.wtsp))}
+        onClick={() => {
+          dispatch(getContactMessages(props.recentMessage.wtsp));
+          dispatch(markContactRead(props.recentMessage.wtsp));
+        }}
       >
         <Grid container spacing={0} columns={16}>
           <Grid xs={4}>
@@ -30,7 +34,7 @@ const ChatCard = (props) => {
               height="100%"
             >
               <Badge
-                badgeContent={props.recentMessages.unreadMessageCount}
+                badgeContent={props.recentMessage.unreadMessageCount}
                 color="success"
               >
                 <Avatar />
@@ -40,14 +44,14 @@ const ChatCard = (props) => {
           <Grid xs={8} spacing={0} sx={{ flexGrow: 1 }}>
             <Grid container spacing={0} columns={1}>
               <Grid xs={8} display="flex" justifyContent="space-between">
-                <Typography>{props.recentMessages.wtsp}</Typography>
+                <Typography>{props.recentMessage.wtsp}</Typography>
                 <Typography variant="caption">
-                  {props.recentMessages.lastMessageTime}
+                  {props.recentMessage.lastMessageTime}
                 </Typography>
               </Grid>
               <Grid xs={4}>
                 <Typography variant="body2" color="text.secondary" noWrap>
-                  {props.recentMessages.lastMessage}
+                  {props.recentMessage.lastMessage}
                 </Typography>
               </Grid>
             </Grid>

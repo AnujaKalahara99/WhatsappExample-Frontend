@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const cloud = "https://kind-red-wombat-yoke.cyclic.app";
+const local = "http://localhost:4000";
+
 const send = async (messageData, token) => {
-  console.log(token);
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -11,7 +13,7 @@ const send = async (messageData, token) => {
   };
 
   const response = await axios.post(
-    "https://kind-red-wombat-yoke.cyclic.app/api/wtsp/messages",
+    `${cloud}/api/wtsp/messages`,
     messageData,
     config
   );
@@ -19,6 +21,6 @@ const send = async (messageData, token) => {
   return response.data;
 };
 
-const messageService = { send };
+const sendMessageService = { send };
 
-export default messageService;
+export default sendMessageService;

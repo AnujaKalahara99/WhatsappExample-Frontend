@@ -24,7 +24,8 @@ const NavigationDrawer = (props) => {
   const mainPages = [
     { label: "Dashboard", path: "/" },
     { label: "CreateAd", path: "/createAd" },
-    { label: "Messages", path: "/" },
+    { label: "Replies", path: "/replies" },
+    { label: "Contacts", path: "/contacts" },
     { label: "Payment", path: "/" },
   ];
   const recentCampaigns = ["2024 A/L Start", "January 1st Sales Offer"];

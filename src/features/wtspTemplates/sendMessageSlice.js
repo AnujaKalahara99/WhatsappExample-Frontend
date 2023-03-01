@@ -1,17 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import messageService from "./messageService";
+import messageService from "./sendMessageService";
 
 export const send = createAsyncThunk(
-  "wtspMessage/send",
-  async (_, thunkAPI) => {
+  "wtspSendMessage/send",
+  async (sendPrivateMessage, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.token;
-      const contacts = thunkAPI.getState().contacts.selectedContacts;
-      const to = contacts.map((con) => con.wtsp);
-      const templateData = thunkAPI.getState().message.templateData;
+      const contacts = thunkAPI.getState().contacts.filteredSelectedContacts;
+      const toFromCreateAd = contacts.map((con) => con.wtsp);
+      const toFromSingleMsg = [thunkAPI.getState().messages.selectedContact];
+      const { templateData, messageBody } = thunkAPI.getState().sendMessage;
       const messageData = {
-        to,
-        template: templateData.name,
+        to: sendPrivateMessage ? toFromSingleMsg : toFromCreateAd,
+        message: sendPrivateMessage ? messageBody : "",
+        template: sendPrivateMessage ? "" : templateData.name,
         body_params: templateData.body,
         header_params: templateData.header,
       };
@@ -42,7 +44,7 @@ const initialState = {
   message: "",
 };
 
-const messageSlice = createSlice({
+const sendMessageSlice = createSlice({
   name: "wtspSendMessage",
   initialState,
   reducers: {
@@ -54,6 +56,9 @@ const messageSlice = createSlice({
         state.to.indexOf(removeItem)
       );
       state.to.filter((item, i) => indexes.indexOf(i) === -1);
+    },
+    removeAllContacts(state) {
+      state.to = [];
     },
     selectTemplate(state, action) {
       state.templateData.name = action.payload;
@@ -74,11 +79,13 @@ const messageSlice = createSlice({
     builder
       .addCase(send.pending, (state) => {
         state.isLoading = true;
+        state.isSuccess = false;
+        state.isError = false;
       })
-      .addCase(send.fulfilled, (state) => {
+      .addCase(send.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isError = false;
-        state.message = "";
+        state.message = action.payload;
         state.isSuccess = true;
       })
       .addCase(send.rejected, (state, action) => {
@@ -93,9 +100,10 @@ const messageSlice = createSlice({
 export const {
   addContacts,
   removeContacts,
+  removeAllContacts,
   selectTemplate,
   updateTemplateVariables,
   updateMessage,
   reset,
-} = messageSlice.actions;
-export default messageSlice.reducer;
+} = sendMessageSlice.actions;
+export default sendMessageSlice.reducer;

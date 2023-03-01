@@ -3,12 +3,33 @@ import contactService from "./contactService";
 
 const user = JSON.parse(localStorage.getItem("user"));
 
+export const createContacts = createAsyncThunk(
+  "contacts/createContacts",
+  async (contacts, thunkAPI) => {
+    try {
+      const user = thunkAPI.getState().auth.user;
+      return await contactService.createContacts(user.token, user.userId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 export const filterByCampaignID = createAsyncThunk(
   "contacts/filterByCampaignID",
-  async (campaignId, thunkAPI) => {
+  async (campaignIds, thunkAPI) => {
     try {
-      const userID = 3;
-      return await contactService.selectContacts(userID, campaignId);
+      const user = thunkAPI.getState().auth.user;
+      return await contactService.selectContacts(user.token, {
+        userId: user.userId,
+        campaignIds,
+      });
     } catch (error) {
       const message =
         (error.response &&
@@ -28,7 +49,10 @@ export const filterByTags = createAsyncThunk(
       ? data.isFilteringSelected
       : false;
     try {
+      const token = thunkAPI.getState().auth.user.token;
+
       return await contactService.selectContactsByTags(
+        token,
         data.tags,
         data.list,
         isFilteringSelected
@@ -108,12 +132,33 @@ export const removeFromSelected = createAsyncThunk(
   }
 );
 
+//For Replies Window
+export const getRecentMessageFromAll = createAsyncThunk(
+  "contacts/getRecentMessageFromAll",
+  async (_, thunkAPI) => {
+    try {
+      const userId = "3";
+      return await contactService.getRecentMessageFromAll(userId);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const initialState = {
+  allContacts: [],
   selectedContacts: [],
   nonSelectedContacts: [],
   filteredSelectedContacts: [],
   filteredNonSelectedContacts: [],
   allFilterTags: [],
+  recentMessageDetails: [],
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -130,6 +175,20 @@ const contactSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(createContacts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createContacts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.allContacts = [...state.allContacts, ...action.payload];
+      })
+      .addCase(createContacts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
       .addCase(filterByCampaignID.pending, (state) => {
         state.isLoading = true;
       })
@@ -212,6 +271,20 @@ const contactSlice = createSlice({
         state.filteredNonSelectedContacts = action.payload.filteredNonSelected;
       })
       .addCase(removeFromSelected.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(getRecentMessageFromAll.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getRecentMessageFromAll.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.isError = false;
+        state.recentMessageDetails = action.payload;
+      })
+      .addCase(getRecentMessageFromAll.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;

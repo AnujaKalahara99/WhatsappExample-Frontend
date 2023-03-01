@@ -4,9 +4,11 @@ import NavigationDrawer from "./components/NavigationDrawer";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/DashBoard";
 import CreateAd from "./pages/CreateAd";
+import Contacts from "./pages/Contacts";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import { Box } from "@mui/material";
+import Replies from "./pages/Replies";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Routes>
             <Route path={"/"} element={<Dashboard />} />
             <Route path={"/createAd"} element={<CreateAd />} />
+            <Route path={"/replies"} element={<Replies />} />
+            <Route path={"/contacts"} element={<Contacts />} />
             <Route path={"/register"} element={<Register />} />
             <Route path={"/login"} element={<Login />} />
           </Routes>

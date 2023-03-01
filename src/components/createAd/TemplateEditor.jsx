@@ -1,15 +1,15 @@
 import { TextField } from "@mui/material";
-import StringVariableReplace from "../SEW/utility/StringVariableReplace";
+import StringVariableReplace from "../utility/StringVariableReplace";
 
 import { useSelector, useDispatch } from "react-redux";
-import { updateTemplateVariables } from "../../features/wtspTemplates/messageSlice";
+import { updateTemplateVariables } from "../../features/wtspTemplates/sendMessageSlice";
 import { useEffect, useState } from "react";
 
 const TemplateEditor = () => {
   const dispatch = useDispatch();
 
   const selectedTemplateVariables = useSelector(
-    (state) => state.message.templateData
+    (state) => state.sendMessage.templateData
   );
   const selectedTemplate = useSelector((state) =>
     state.template.templates.find(

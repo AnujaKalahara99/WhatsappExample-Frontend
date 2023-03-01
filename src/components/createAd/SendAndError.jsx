@@ -2,7 +2,7 @@ import { Box, Button, LinearProgress, Typography } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { send } from "../../features/wtspTemplates/messageSlice";
+import { send } from "../../features/wtspTemplates/sendMessageSlice";
 
 const SendAndError = () => {
   const dispatch = useDispatch();
@@ -11,10 +11,10 @@ const SendAndError = () => {
     isError,
     isLoading,
     isSuccess,
-    message: errorMessage,
-  } = useSelector((state) => state.message);
-  const { selectedContacts } = useSelector((state) => state.contacts);
-  const template = useSelector((state) => state.message.templateData.name);
+    message: messageLog,
+  } = useSelector((state) => state.sendMessage);
+  const { filteredSelectedContacts } = useSelector((state) => state.contacts);
+  const template = useSelector((state) => state.sendMessage.templateData.name);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,10 +28,10 @@ const SendAndError = () => {
           <LinearProgress />
         </Box>
       );
-    if (isError)
+    if (isError || isSuccess)
       return (
         <Typography color="red" borderColor="red">
-          {errorMessage}
+          {messageLog}
         </Typography>
       );
     if (!template)
@@ -41,7 +41,7 @@ const SendAndError = () => {
           borderColor="red"
         >{`PLease select a template`}</Typography>
       );
-    if (!selectedContacts || selectedContacts.length === 0)
+    if (!filteredSelectedContacts || filteredSelectedContacts.length === 0)
       return (
         <Typography
           color="red"
@@ -50,7 +50,7 @@ const SendAndError = () => {
       );
 
     return (
-      <Typography>{`Click to send ${template} to ${selectedContacts.length} contacts`}</Typography>
+      <Typography>{`Click to send ${template} to ${filteredSelectedContacts.length} contacts`}</Typography>
     );
   };
 
@@ -63,7 +63,7 @@ const SendAndError = () => {
         <Button
           size="large"
           variant="contained"
-          disabled={!template || selectedContacts.length === 0}
+          disabled={!template || filteredSelectedContacts.length === 0}
           onClick={handleSubmit}
         >
           Send

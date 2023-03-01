@@ -26,9 +26,10 @@ const Register = () => {
     email: "apk@gmail.com",
     password: "1234",
     password2: "1234",
+    waid: "100590229567422",
   });
 
-  const { name, email, password, password2 } = formData;
+  const { name, email, password, password2, waid } = formData;
 
   useEffect(() => {
     if (isError) console.log(message);
@@ -56,6 +57,7 @@ const Register = () => {
       name,
       email,
       password,
+      waid,
     };
 
     dispatch(register(userData));
@@ -119,6 +121,16 @@ const Register = () => {
           required
           onChange={onInput}
           value={password2}
+        />
+        <TextField
+          name="waid"
+          label="Whatsapp ID"
+          variant="outlined"
+          style={inputStyle}
+          fullWidth
+          required
+          onChange={onInput}
+          value={waid}
         />
         <Button
           type="submit"

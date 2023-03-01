@@ -1,112 +1,85 @@
-export const contacts = [
-  {
-    id: 0,
-    userID: 3,
-    campaignIDs: [1, 2],
-    name: "Anuja",
-    wtsp: "94763891917",
-    sms: "94763891917",
-    email: "a.p.kalhara@gmail.com",
-    tags: ["Male", "Apple"],
-  },
-  {
-    id: 1,
-    userID: 3,
-    campaignIDs: [1, 2],
-    name: "Induwara",
-    wtsp: "94768608824",
-    tags: ["Male", "Apple", "Orange"],
-  },
-  {
-    id: 2,
-    userID: 3,
-    campaignIDs: [2],
-    name: "Amma",
-    wtsp: "94779151626",
-    email: "vasanthanandasiri1@gmail.com",
-    tags: ["Female"],
-  },
-  {
-    id: 2,
-    userID: 3,
-    campaignIDs: [2],
-    name: "",
-    wtsp: "94771151643",
-    email: "",
-    tags: ["Apple", "Orange"],
-  },
-];
+import axios from "axios";
+import {
+  contacts,
+  tags,
+  addToSelectedLocal,
+  removeFromSelectedLocal,
+  selectContactsByTagsLocal,
+} from "./contactServiceLocal";
 
-export const tags = [
-  {
-    userID: 3,
-    label: "Male",
-  },
-  {
-    userID: 3,
-    label: "Female",
-  },
-  {
-    userID: 3,
-    label: "Apple",
-  },
-  {
-    userID: 3,
-    label: "Orange",
-  },
-];
+const cloud = "https://kind-red-wombat-yoke.cyclic.app";
+const local = "http://localhost:4000";
+const maxLength = 1000; //if exceed the process will be passed to backend
 
-function not(a, b) {
-  return a.filter((value) => b.indexOf(value) === -1);
-}
-
-function intersection(a, b) {
-  return a.filter((value) => b.indexOf(value) !== -1);
-}
-
-function union(a, b) {
-  return [...a, ...not(b, a)];
-}
-
-const selectContacts = async (userId, campaignId) => {
-  const all = contacts.filter((contact) => contact.userID === userId);
-  const selected = [];
-  const nonSelected = [];
-  all.forEach((contact) => {
-    if (contact.campaignIDs.includes(campaignId))
-      selected.push({ wtsp: contact.wtsp, tags: contact.tags });
-    else nonSelected.push({ wtsp: contact.wtsp, tags: contact.tags });
-  });
-  return {
-    selected,
-    nonSelected,
+const createContacts = async (token, userId) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   };
+
+  const contactList = contacts.map((con) => {
+    con.userId = userId;
+    return con;
+  });
+  const response = await axios.post(
+    `${cloud}/api/contacts`,
+    contactList,
+    config
+  );
+
+  return response.data;
+};
+
+const selectContacts = async (token, filters) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    params: {
+      filters,
+    },
+  };
+  console.log(`${cloud}/api/contacts/${filters.userId}`);
+  const response = await axios.get(
+    `${cloud}/api/contacts/${filters.userId}`,
+    config
+  );
+  return response.data;
 };
 
 const selectContactsByTags = async (
+  token,
   filterTags,
   contactList,
   isFilteringSelected
 ) => {
-  let filtered = [];
-  if (filterTags && filterTags.length !== 0) {
-    contactList.forEach((contact) => {
-      let found = true;
-      filterTags.forEach((tag) => {
-        if (contact.tags.indexOf(tag) === -1) {
-          found = false;
-          return;
-        }
-      });
-      if (found) {
-        filtered.push(contact);
-      }
-    });
-  } else {
-    filtered = contactList;
+  if (contactList.length < maxLength) {
+    return selectContactsByTagsLocal(
+      filterTags,
+      contactList,
+      isFilteringSelected
+    );
   }
+
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    params: {
+      filterTags,
+      contactList,
+    },
+  };
+  const response = await axios.get(
+    `${cloud}/api/contacts/filterByTags`,
+    config
+  );
   return {
-    filtered,
+    filtered: response.data,
     isFilteringSelected,
   };
 };
@@ -123,12 +96,7 @@ const addToSelected = async (
   filteredS,
   filteredNS
 ) => {
-  return {
-    filteredSelected: union(filteredS, add),
-    selected: union(selected, add),
-    filteredNonSelected: not(filteredNS, add),
-    nonSelected: not(nonSelected, add),
-  };
+  return addToSelectedLocal(add, selected, nonSelected, filteredS, filteredNS);
 };
 
 const removeFromSelected = async (
@@ -138,19 +106,40 @@ const removeFromSelected = async (
   filteredS,
   filteredNS
 ) => {
-  return {
-    filteredSelected: not(filteredS, remove),
-    selected: not(selected, remove),
-    filteredNonSelected: union(filteredNS, remove),
-    nonSelected: union(nonSelected, remove),
-  };
+  return removeFromSelectedLocal(
+    remove,
+    selected,
+    nonSelected,
+    filteredS,
+    filteredNS
+  );
+};
+
+//For Reply Window
+const getRecentMessageFromAll = (userId) => {
+  const all = contacts.filter(
+    (contact) => contact.userId === userId && contact.lastMessage !== ""
+  );
+  all.map((contact) => {
+    return {
+      wtsp: contact.wtsp,
+      name: contact.name,
+      lastMessage: contact.lastMessage,
+      lastMessageTime: contact.lastMessageTime,
+      lastConversationTime: contact.lastConversationTime,
+      unreadMessageCount: contact.unreadMessageCount,
+    };
+  });
+  return all;
 };
 
 const contactService = {
+  createContacts,
   selectContacts,
   getAllTags,
   selectContactsByTags,
   addToSelected,
   removeFromSelected,
+  getRecentMessageFromAll,
 };
 export default contactService;

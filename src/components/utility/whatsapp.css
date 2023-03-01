@@ -173,6 +173,14 @@ body {
 
 .conversation .conversation-container {
   height: calc(100% - 68px);
+  box-shadow: inset 0 10px 10px -10px #000000;
+  overflow-x: hidden;
+  padding: 0 16px;
+  margin-bottom: 5px;
+}
+
+.conversation .conversation-container-no-shadow {
+  height: calc(100% - 68px);
   /* box-shadow: inset 0 10px 10px -10px #000000; */
   overflow-x: hidden;
   padding: 0 16px;
@@ -190,13 +198,14 @@ body {
 .message {
   color: #000;
   clear: both;
-  line-height: 18px;
-  font-size: 15px;
-  padding: 8px;
+  /* line-height: 18px; */
+  /* font-size: 15px; */
+  padding: 6px 7px 8px 9px;
   position: relative;
-  margin: 8px 0;
-  max-width: 85%;
+  max-width: 75%;
+  min-width: 200px;
   word-wrap: break-word;
+  margin: 8px 0;
   z-index: -1;
 }
 
@@ -208,18 +217,49 @@ body {
   border-style: solid;
 }
 
+.message .header {
+  font-size: 15px;
+  font-weight: 550;
+  line-height: 19px;
+  color: #111b21;
+  padding-bottom: 5px;
+}
+
+.message .footer {
+  box-sizing: border-box;
+  color: #8696a0;
+  padding-top: 6px;
+  font-size: 0.8125rem;
+  padding-bottom: 2px;
+  line-height: 17px;
+  position: relative;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
 .metadata {
-  display: inline-block;
+  /* display: inline-block;
   float: right;
   padding: 0 0 0 7px;
   position: relative;
-  bottom: -4px;
+  bottom: -4px; */
+
+  float: right;
+  margin: -10px 0 -5px 4px;
+  position: relative;
+  z-index: 10;
 }
 
 .metadata .time {
-  color: rgba(0, 0, 0, 0.45);
+  /* color: rgba(0, 0, 0, 0.45);
   font-size: 11px;
-  display: inline-block;
+  display: inline-block; */
+
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  color: #667781;
+  height: 15px;
+  line-height: 15px;
 }
 
 .metadata .tick {

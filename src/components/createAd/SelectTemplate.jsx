@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllTemplates } from "../../features/wtspTemplates/templateSlice";
-import { selectTemplate as selectTemplateAction } from "../../features/wtspTemplates/messageSlice";
+import { selectTemplate as selectTemplateAction } from "../../features/wtspTemplates/sendMessageSlice";
 import {
   Typography,
   Box,
@@ -12,8 +12,8 @@ import {
   Card,
   CardActionArea,
 } from "@mui/material";
-import "../SEW/utility/whatsapp.css";
-import StringVariableReplace from "../SEW/utility/StringVariableReplace";
+//import "../SEW/utility/whatsapp.css";
+import StringVariableReplace from "../utility/StringVariableReplace";
 import TemplateEditor from "./TemplateEditor";
 
 const SelectTemplate = () => {
@@ -24,7 +24,7 @@ const SelectTemplate = () => {
   );
 
   const selectedTemplateVariables = useSelector(
-    (state) => state.message.templateData
+    (state) => state.sendMessage.templateData
   );
 
   const selectedTemplate = useSelector((state) =>
@@ -35,7 +35,7 @@ const SelectTemplate = () => {
 
   useEffect(() => {
     if (templates.length === 0) dispatch(getAllTemplates());
-  }, [dispatch, templates]);
+  }, []);
 
   const handleTemplateSelect = (i) => {
     dispatch(selectTemplateAction(templates[i].name));
@@ -85,7 +85,7 @@ export default SelectTemplate;
 function WhatsappTemplatePreview(props) {
   return (
     <div className="conversation">
-      <div className="conversation-container">
+      <div className="conversation-container-no-shadow">
         <div className="message received">
           {!props.variables ? (
             props.children

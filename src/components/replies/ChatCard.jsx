@@ -16,6 +16,18 @@ import { getContactMessages } from "../../features/messages/messagesSlice";
 
 const ChatCard = (props) => {
   const dispatch = useDispatch();
+  const lastMsgTime = new Date(props.recentMessage.lastMessageTime);
+
+  function formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    var strTime = hours + ":" + minutes + " " + ampm;
+    return strTime;
+  }
 
   return (
     <Box sx={{ padding: 1 }}>
@@ -46,7 +58,7 @@ const ChatCard = (props) => {
               <Grid xs={8} display="flex" justifyContent="space-between">
                 <Typography>{props.recentMessage.wtsp}</Typography>
                 <Typography variant="caption">
-                  {props.recentMessage.lastMessageTime}
+                  {formatAMPM(lastMsgTime)}
                 </Typography>
               </Grid>
               <Grid xs={4}>

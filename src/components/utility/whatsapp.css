@@ -64,7 +64,8 @@ body {
 /* Chat */
 
 .chat {
-  height: calc(100% - 69px);
+  /* height: calc(100% - 69px); */
+  height: 100%;
 }
 
 .chat-container {
@@ -264,10 +265,11 @@ body {
 
 .metadata .tick {
   display: inline-block;
-  margin-left: 2px;
+  fill: none;
+  margin-left: 3px;
   position: relative;
   top: 4px;
-  height: 16px;
+  height: 11px;
   width: 16px;
 }
 
@@ -276,21 +278,21 @@ body {
   transition: 0.5s ease-in-out;
 }
 
-.metadata .tick svg:first-child {
+/* .metadata .tick svg:first-child {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   -webkit-transform: perspective(800px) rotateY(180deg);
   transform: perspective(800px) rotateY(180deg);
-}
+} */
 
-.metadata .tick svg:last-child {
+/* .metadata .tick svg:last-child {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   -webkit-transform: perspective(800px) rotateY(0deg);
   transform: perspective(800px) rotateY(0deg);
-}
+} */
 
-.metadata .tick-animation svg:first-child {
+/* .metadata .tick-animation svg:first-child {
   -webkit-transform: perspective(800px) rotateY(0);
   transform: perspective(800px) rotateY(0);
 }
@@ -298,7 +300,7 @@ body {
 .metadata .tick-animation svg:last-child {
   -webkit-transform: perspective(800px) rotateY(-179.9deg);
   transform: perspective(800px) rotateY(-179.9deg);
-}
+} */
 
 .message:first-child {
   margin: 16px 0 8px;
